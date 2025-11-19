@@ -5,7 +5,7 @@
 1. Спроектируйте to be архитектуру КиноБездны, разделив всю систему на отдельные домены и организовав интеграционное взаимодействие и единую точку вызова сервисов.
 Результат представьте в виде контейнерной диаграммы в нотации С4.
 Добавьте ссылку на файл в этот шаблон
-[ссылка на файл](ссылка)
+[To Be Container](./schemas/container/To_Be_Container.puml)
 
 
 ## Задание 2
@@ -58,6 +58,14 @@
 
 Необходимые тесты для проверки этого API вызываются при запуске npm run test:local из папки tests/postman 
 Приложите скриншот тестов и скриншот состояния топиков Kafka http://localhost:8090 
+
+![Kafka Topics](./screenshots/image.png)
+![Topic Movie Events](./screenshots/image-1.png)
+![Topic Payment Events](./screenshots/image-2.png)
+![Topic User Events](./screenshots/image-3.png)
+![Тесты 1](./screenshots/image-4.png)
+![Тесты 2](./screenshots/image-5.png)
+![Тесты 3](./screenshots/image-6.png)
 
 
 ## Задание 3
@@ -274,6 +282,8 @@ cat .docker/config.json | base64
 #### Шаг 3
 Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
 
+![Ответ с видео](./screenshots/movies.png)
+![Логи с событиями](./screenshots/events.png)
 
 ## Задание 4
 Для простоты дальнейшего обновления и развертывания вам как архитектуру необходимо так же реализовать helm-чарты для прокси-сервиса и проверить работу 
@@ -349,6 +359,9 @@ minikube tunnel
 https://cinemaabyss.example.com/api/movies
 и приложите скриншот развертывания helm и вывода https://cinemaabyss.example.com/api/movies
 
+![Helm input](./screenshots/helm.png)
+![Helm kube](./screenshots/helm-kube.png)
+![Ответ с видео](./screenshots/movies-2.png)
 
 # Задание 5
 Компания планирует активно развиваться и для повышения надежности, безопасности, реализации сетевых паттернов типа Circuit Breaker и канареечного деплоя вам как архитектору необходимо развернуть istio и настроить circuit breaker для monolith и movies сервисов.
@@ -414,6 +427,12 @@ You can see 21 for the upstream_rq_pending_overflow value which means 21 calls s
 ```
 
 Приложите скриншот работы circuit breaker'а
+
+![Monolith](./screenshots/fortio-monolith.png)
+![Monolith 2](./screenshots/fortio-monolith-2.png)
+
+![Movies service](./screenshots/fortio-movies.png)
+![Movies service 2](./screenshots/fortio-movies-2.png)
 
 Удаляем все
 ```bash

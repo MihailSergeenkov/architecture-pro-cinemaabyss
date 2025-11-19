@@ -1,0 +1,95 @@
+@startuml To_Be_Container
+
+title To Be Container Diagram
+
+!include ../C4/C4_Container.puml
+
+Person(User, "Клиент", "Пользователь Кинобездны")
+
+System_Boundary(System, "Кинобездна") {
+  Container_Boundary(Web, "Web UI Кинобездны") {
+    Container(AuthWidget, "Виджет (микрофронтенд) авторизации пользователя")
+    Container(PaymentsWidget, "Виджет (микрофронтенд) сервиса платежей")
+    Container(ProfileWidget, "Виджет (микрофронтенд) сервиса профиля пользователя")
+    Container(MoviesWidget, "Виджет (микрофронтенд) сервиса матаданных о фильмах")
+  }
+
+  Container(ApiGateway, "API Gateway")
+  ContainerDb(ApiGatewayDb, "БД api Gateway")
+
+  Container(Cas, "Сервис единой авторизации")
+  ContainerDb(CasDb, "БД сервиса авторизации")
+
+  Container(Payments, "Сервис платежей")
+  ContainerDb(PaymentsDb, "БД сервиса платежей")
+
+  Container(Movies, "Сервис матаданных о фильмах")
+  ContainerDb(MoviesDb, "БД сервиса матаданных о фильмах")
+
+  Container(Events, "Сервис обработки событий между сервисами")
+  ContainerQueue(Kafka, "Kafka")
+
+  Container(Profile, "Сервис профиля пользователя")
+  ContainerDb(ProfileDb, "БД сервиса профиля пользователя")
+
+  Container(Loyalty, "Сервис лояльности")
+  ContainerDb(LoyaltyDb, "БД сервиса лояльности")
+
+  Container(Subscriptions, "Сервис подписок")
+  ContainerDb(SubscriptionsDb, "БД сервиса подписок")
+
+  Container(OldMonolith, "Старый монолит")
+  ContainerDb(OldMonolithDb, "БД cтарого монолита")
+}
+
+System_Ext(RecomendSystem, "Внешняя рекомендательная система")
+System_Ext(PaymentSystem, "Платежная система")
+System_Ext(StorageSystem, "S3")
+System_Ext(OnlineCinemaSystem, "Online кинотеатры")
+
+Rel(User, Web, "Использует систему")
+Rel(OldMonolith, RecomendSystem, "Интеграция с рекомендательной системой")
+Rel(Payments, PaymentSystem, "Интеграция с платежной системой")
+Rel(Movies, StorageSystem, "Интеграция с S3")
+Rel(Movies, OnlineCinemaSystem, "Интеграция с online кинотеатром")
+
+Rel(Web, ApiGateway, "Api запросы")
+
+Rel(ApiGateway, Cas, "Проверка авторизации пользователя")
+Rel(ApiGateway, Payments, "Работа с платежами")
+Rel(ApiGateway, Movies, "Работа с метаданными фильмов")
+Rel(ApiGateway, Profile, "Работа с профилем пользователя")
+Rel(ApiGateway, Loyalty, "Работа с лояльностью")
+Rel(ApiGateway, Subscriptions, "Работа с подписками")
+Rel(ApiGateway, OldMonolith, "Работа с старым монолитом")
+
+
+Rel(ApiGateway, ApiGatewayDb, "Чтение/запись")
+Rel(Cas, CasDb, "Чтение/запись")
+Rel(Cas, OldMonolithDb, "Чтение/запись")
+Rel(Payments, PaymentsDb, "Чтение/запись")
+Rel(Payments, OldMonolithDb, "Чтение/запись")
+Rel(Movies, MoviesDb, "Чтение/запись")
+Rel(Movies, OldMonolithDb, "Чтение/запись")
+Rel(Profile, ProfileDb, "Чтение/запись")
+Rel(Profile, OldMonolithDb, "Чтение/запись")
+Rel(Loyalty, LoyaltyDb, "Чтение/запись")
+Rel(Loyalty, OldMonolithDb, "Чтение/запись")
+Rel(Subscriptions, SubscriptionsDb, "Чтение/запись")
+Rel(Subscriptions, OldMonolithDb, "Чтение/запись")
+Rel(OldMonolith, OldMonolithDb, "Чтение/запись")
+
+Rel(Kafka, Events, "Чтение событий")
+
+Rel(Payments, Kafka, "Создание события")
+Rel(Movies, Kafka, "Создание события")
+Rel(Cas, Kafka, "Создание события")
+Rel(Profile, Kafka, "Создание события")
+Rel(Loyalty, Kafka, "Создание события")
+Rel(Subscriptions, Kafka, "Создание события")
+
+Rel(Events, Payments, "Запись событий")
+Rel(Events, Profile, "Запись событий")
+Rel(Events, Loyalty, "Запись событий")
+Rel(Events, Subscriptions, "Запись событий")
+@enduml 

@@ -28,6 +28,12 @@ services:
     container_name: cinemaabyss-zookeeper
     ports:
       - "2181:2181"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo ruok | nc 127.0.0.1 2181 | grep imok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
     networks:
       - cinemaabyss-network
 
@@ -36,7 +42,8 @@ services:
     image: wurstmeister/kafka:2.13-2.7.0
     container_name: cinemaabyss-kafka
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     ports:
       - "9092:9092"
     environment:
@@ -47,6 +54,12 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     networks:
       - cinemaabyss-network
 
@@ -57,7 +70,10 @@ services:
       dockerfile: Dockerfile
     container_name: cinemaabyss-monolith
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     ports:
       - "8080:8080"
     environment:
@@ -73,7 +89,10 @@ services:
       dockerfile: Dockerfile
     container_name: cinemaabyss-movies-service
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     ports:
       - "8081:8081"
     environment:
@@ -89,8 +108,10 @@ services:
       dockerfile: Dockerfile
     container_name: cinemaabyss-events-service
     depends_on:
-      - postgres
-      - kafka
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     ports:
       - "8082:8082"
     environment:
@@ -118,6 +139,7 @@ services:
       EVENTS_SERVICE_URL: http://events-service:8082
       GRADUAL_MIGRATION: "true"
       MOVIES_MIGRATION_PERCENT: "50"
+      EVENTS_MIGRATION_PERCENT: "100"
     networks:
       - cinemaabyss-network
 
@@ -126,7 +148,8 @@ services:
     image: provectuslabs/kafka-ui:latest
     container_name: cinemaabyss-kafka-ui
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     ports:
       - "8090:8080"
     environment:
